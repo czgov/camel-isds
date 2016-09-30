@@ -9,13 +9,19 @@ import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
 
-import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cz.abclinuxu.datoveschranky.impl.Authentication;
+import cz.abclinuxu.datoveschranky.impl.BasicAuthentication;
+import cz.abclinuxu.datoveschranky.impl.DataBoxManager;
 
 /**
  * Represents a ISDS endpoint.
  */
 @UriEndpoint(scheme = "isds", title = "ISDS", syntax = "isds:?opt=value", consumerClass = ISDSConsumer.class, label = "ISDS")
 public class ISDSEndpoint extends DefaultEndpoint {
+    private static final Logger log = LoggerFactory.getLogger(ISDSEndpoint.class);
 
     @UriPath(description = "This endpoint doesn't use path parameter.")
     @Metadata(required = "false")
@@ -25,20 +31,44 @@ public class ISDSEndpoint extends DefaultEndpoint {
     @Metadata(required = "false")
     private ISDSEnvironment environment = ISDSEnvironment.PRODUCTION;
 
-    @UriParam(defaultValue = "1m", label = "consumer", description = "Interval between polling messages from ISDS in miliseconds."
-            + " You can also specify time values using units, such as 60s (60 seconds), 5m30s (5 minutes and 30 seconds), and 1h (1 hour).")
-    private long period = TimeUnit.MINUTES.toMillis(1);
+    @UriParam(description = "Username for ISDS system.")
+    @Metadata(required = "true")
+    private String username;
+
+    @UriParam(description = "Password for ISDS system")
+    @Metadata(required = "true")
+    private String password;
+
+    private Authentication dataBoxAuth;
+    private DataBoxManager dataBoxManager;
 
     public ISDSEndpoint(String uri, ISDSComponent component) {
         super(uri, component);
     }
 
+    /**
+     * Populate instance of {@link Authentication} and {@link DataBoxManager}.
+     * This method must be called once {@code @UriParam} fields are resolved.
+     * In constructor it's too early.
+     */
+    private void initDataBox() {
+        if (dataBoxAuth == null) {
+            log.debug("Initializing DataBoxManager with env {} and login {}.", environment, username);
+            dataBoxAuth = new BasicAuthentication(environment.getConfig(), username, password);
+            dataBoxManager = new DataBoxManager(environment.getConfig(), dataBoxAuth);
+        }
+    }
+
     public Producer createProducer() throws Exception {
+        initDataBox();
         return new ISDSProducer(this);
     }
 
     public Consumer createConsumer(Processor processor) throws Exception {
-        return new ISDSConsumer(this, processor);
+        initDataBox();
+        Consumer consumer = new ISDSConsumer(this, processor, dataBoxManager);
+        configureConsumer(consumer);
+        return consumer;
     }
 
     public boolean isSingleton() {
@@ -56,11 +86,27 @@ public class ISDSEndpoint extends DefaultEndpoint {
         this.environment = environment;
     }
 
-    public long getPeriod() {
-        return period;
+    public String getUsername() {
+        return username;
     }
 
-    public void setPeriod(long period) {
-        this.period = period;
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Authentication getDataBoxAuth() {
+        return dataBoxAuth;
+    }
+
+    public DataBoxManager getDataBoxManager() {
+        return dataBoxManager;
     }
 }

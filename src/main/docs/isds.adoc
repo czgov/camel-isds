@@ -18,15 +18,16 @@ ISDSEndpoint Options
 
 
 // endpoint options: START
-The ISDS component supports 7 endpoint options which are listed below:
+The ISDS component supports 8 endpoint options which are listed below:
 
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
 | Name | Group | Default | Java Type | Description
 | uriPath | common |  | String | This endpoint doesn't use path parameter.
 | environment | common | production | ISDSEnvironment | Some description of this option and what it does
+| password | common |  | String | *Required* Password for ISDS system
+| username | common |  | String | *Required* Username for ISDS system.
 | bridgeErrorHandler | consumer | false | boolean | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN/ERROR level and ignored.
-| period | consumer | 1m | long | Interval between polling messages from ISDS in miliseconds. You can also specify time values using units such as 60s (60 seconds) 5m30s (5 minutes and 30 seconds) and 1h (1 hour).
 | exceptionHandler | consumer (advanced) |  | ExceptionHandler | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN/ERROR level and ignored.
 | exchangePattern | advanced | InOnly | ExchangePattern | Sets the default exchange pattern when creating an exchange
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
@@ -52,4 +53,17 @@ The ISDS component has no options.
 // component options: END
 
 
+[[ISDS-ConsumerEndpoints]]
+Consumer Endpoints
+^^^^^^^^^^^^^^^^^^
 
+`ISDSConsumer` extends `ScheduledPollConsumer`.
+This means that you can use
+http://camel.apache.org/polling-consumer.html#PollingConsumer-ScheduledPollConsumerOptions[ScheduledPollConsumerOptions]
+with prefix `consumer.`
+
+For example to set polling period to 72 hours, you can use:
+```java
+from("isds:?environment=test&username=USERNAME&password=PASSWORD&consumer.delay=72h")
+		.log("new message ${body}");
+```
