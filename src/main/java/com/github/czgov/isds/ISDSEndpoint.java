@@ -80,7 +80,10 @@ public class ISDSEndpoint extends DefaultEndpoint {
     }
 
     /**
-     * Some description of this option, and what it does
+     * Determine if you want to use real ISDS system, or just testing one.
+     * Default value is real (production) system.
+     *
+     * @param environment allowed values are {@link ISDSEnvironment#PRODUCTION} or {@link ISDSEnvironment#TEST}
      */
     public void setEnvironment(ISDSEnvironment environment) {
         this.environment = environment;
