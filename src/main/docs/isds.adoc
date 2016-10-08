@@ -22,8 +22,9 @@ ISDSEndpoint Options
 
 
 
+
 // endpoint options: START
-The ISDS component supports 9 endpoint options which are listed below:
+The ISDS component supports 10 endpoint options which are listed below:
 
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
@@ -34,11 +35,13 @@ The ISDS component supports 9 endpoint options which are listed below:
 | password | common |  | String | *Required* Password for ISDS system
 | username | common |  | String | *Required* Username for ISDS system.
 | bridgeErrorHandler | consumer | false | boolean | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN/ERROR level and ignored.
+| zfo | consumer | false | boolean | Download message as binary (signed) zfo data instead of Message instance.
 | exceptionHandler | consumer (advanced) |  | ExceptionHandler | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN/ERROR level and ignored.
 | exchangePattern | advanced | InOnly | ExchangePattern | Sets the default exchange pattern when creating an exchange
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
 |=======================================================================
 // endpoint options: END
+
 
 
 

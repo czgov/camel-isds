@@ -47,6 +47,10 @@ public class ISDSEndpoint extends DefaultEndpoint {
     @UriParam(defaultValue = Constants.DEFAULT_ATTACHMENT_STORE,
             description = "folder for storing message attachments")
     private Path attachmentStore = Paths.get(Constants.DEFAULT_ATTACHMENT_STORE);
+    
+    @UriParam(defaultValue = "false", label = "consumer",
+            description = "Download message as binary (signed) zfo data instead of Message instance.")
+    private boolean zfo = false;
 
     private Authentication dataBoxAuth;
     private DataBoxManager dataBoxManager;
@@ -131,5 +135,13 @@ public class ISDSEndpoint extends DefaultEndpoint {
 
     public void setAttachmentStore(Path attachmentStore) {
         this.attachmentStore = attachmentStore;
+    }
+    
+    public boolean isZfo() {
+        return zfo;
+    }
+
+    public void setZfo(boolean zfo) {
+        this.zfo = zfo;
     }
 }
