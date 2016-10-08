@@ -35,8 +35,6 @@ public class ISDSConsumer extends ScheduledPollConsumer {
 
     private final ISDSEndpoint endpoint;
 
-    private Path store = Paths.get("attachment-store");
-
     public ISDSConsumer(ISDSEndpoint endpoint, Processor processor, DataBoxManager manager) {
         super(endpoint, processor);
         this.endpoint = endpoint;
@@ -70,10 +68,6 @@ public class ISDSConsumer extends ScheduledPollConsumer {
         int offset = 1;
         int limit = Integer.MAX_VALUE;
 
-        if (!Files.exists(store)) {
-            log.info("Creating folder '{}' for storing attachments", store.toAbsolutePath());
-            Files.createDirectory(store);
-        }
 
         List<MessageEnvelope> envelopes = endpoint.getDataBoxManager()
                 .getDataBoxMessagesService()
@@ -81,7 +75,7 @@ public class ISDSConsumer extends ScheduledPollConsumer {
 
         log.info("Poll {} messsage envelopes.", envelopes.size());
 
-        AttachmentStorer storer = new FileAttachmentStorer(store.toFile());
+        AttachmentStorer storer = new FileAttachmentStorer(endpoint.getAttachmentStore().toFile());
         for (MessageEnvelope e : envelopes) {
             log.info("Recieving isds msg  id {}.", e.getMessageID());
             Message m = endpoint.getDataBoxManager()

@@ -19,13 +19,17 @@ ISDSEndpoint Options
 
 
 
+
+
+
 // endpoint options: START
-The ISDS component supports 8 endpoint options which are listed below:
+The ISDS component supports 9 endpoint options which are listed below:
 
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
 | Name | Group | Default | Java Type | Description
 | uriPath | common |  | String | This endpoint doesn't use path parameter.
+| attachmentStore | common | camel-isds-attachment-store | Path | folder for storing message attachments
 | environment | common | production | ISDSEnvironment | Determine if you want to use real ISDS system or just testing one. Default value is real (production) system.
 | password | common |  | String | *Required* Password for ISDS system
 | username | common |  | String | *Required* Username for ISDS system.
@@ -35,6 +39,9 @@ The ISDS component supports 8 endpoint options which are listed below:
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
 |=======================================================================
 // endpoint options: END
+
+
+
 
 
 
