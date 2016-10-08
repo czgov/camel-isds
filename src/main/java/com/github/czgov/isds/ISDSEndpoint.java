@@ -12,6 +12,11 @@ import org.apache.camel.spi.UriPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import cz.abclinuxu.datoveschranky.impl.Authentication;
 import cz.abclinuxu.datoveschranky.impl.BasicAuthentication;
 import cz.abclinuxu.datoveschranky.impl.DataBoxManager;
@@ -39,6 +44,10 @@ public class ISDSEndpoint extends DefaultEndpoint {
     @Metadata(required = "true")
     private String password;
 
+    @UriParam(defaultValue = Constants.DEFAULT_ATTACHMENT_STORE,
+            description = "folder for storing message attachments")
+    private Path attachmentStore = Paths.get(Constants.DEFAULT_ATTACHMENT_STORE);
+
     private Authentication dataBoxAuth;
     private DataBoxManager dataBoxManager;
 
@@ -51,11 +60,14 @@ public class ISDSEndpoint extends DefaultEndpoint {
      * This method must be called once {@code @UriParam} fields are resolved.
      * In constructor it's too early.
      */
-    private void initDataBox() {
+    private void initDataBox() throws IOException {
         if (dataBoxAuth == null) {
             log.debug("Initializing DataBoxManager with env {} and login {}.", environment, username);
             dataBoxAuth = new BasicAuthentication(environment.getConfig(), username, password);
             dataBoxManager = new DataBoxManager(environment.getConfig(), dataBoxAuth);
+            attachmentStore = attachmentStore.toAbsolutePath();
+            log.info("Initializing attachment store {}", attachmentStore);
+            Files.createDirectories(attachmentStore);
         }
     }
 
@@ -111,5 +123,13 @@ public class ISDSEndpoint extends DefaultEndpoint {
 
     public DataBoxManager getDataBoxManager() {
         return dataBoxManager;
+    }
+
+    public Path getAttachmentStore() {
+        return attachmentStore;
+    }
+
+    public void setAttachmentStore(Path attachmentStore) {
+        this.attachmentStore = attachmentStore;
     }
 }
