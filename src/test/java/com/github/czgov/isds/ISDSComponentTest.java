@@ -1,5 +1,6 @@
 package com.github.czgov.isds;
 
+import cz.abclinuxu.datoveschranky.common.entities.Attachment;
 import cz.abclinuxu.datoveschranky.common.entities.Message;
 import cz.abclinuxu.datoveschranky.common.impl.ByteArrayAttachmentStorer;
 import cz.abclinuxu.datoveschranky.impl.MessageValidator;
@@ -57,13 +58,22 @@ public class ISDSComponentTest extends ISDSTestBase {
     @Test
     public void recieveMessageInBody() throws InterruptedException {
 
-        // send message from OVM to FO
+        // send message from FO to OVM
         Message message = createMessage(getOvmId(), "FO->OVM at " + new Date());
         Message response = senderFo.requestBody(message, Message.class);
 
         // assert we received message with given id
         mockEndpoint.expectedBodiesReceived(response);
         mockEndpoint.assertIsSatisfied(TimeUnit.MINUTES.toMillis(1));
+
+        // assert attachment was stored to filesystem correctly
+        Message received = mockEndpoint.getReceivedExchanges().get(0).getIn().getBody(Message.class);
+        // assume we send one attachment in test messages
+        Attachment a = received.getAttachments().get(0);
+        System.out.println("received attachment: " + a);
+        String name = a.getDescription();
+        Path filePath = Paths.get("target", "atts-ovm", String.format("%s_%s", received.getEnvelope().getMessageID(), name));
+        assertTrue("Attachment file should exist: " + filePath, Files.exists(filePath));
     }
 
     @Test
@@ -90,12 +100,16 @@ public class ISDSComponentTest extends ISDSTestBase {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("isds:?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}&consumer.delay=5s")
+                from("isds:?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}" +
+                        "&consumer.delay=5s" +
+                        "&attachmentStore=target/atts-ovm")
                         .id("from-ovm")
                         .log("new message in OVM inbox - id ${body.envelope.messageID}")
                         .to(mockEndpoint.getEndpointUri());
 
-                from("isds:?environment=test&zfo=true&username={{isds.fo2.login}}&password={{isds.fo2.password}}&consumer.delay=5s")
+                from("isds:?environment=test&zfo=true&username={{isds.fo2.login}}&password={{isds.fo2.password}}" +
+                        "&consumer.delay=5s" +
+                        "&attachmentStore=target/atts-fo2")
                         .id("from-fo2")
                         .log("databox id {{isds.fo2.id}} got new message in zfo format")
                         .setHeader(Exchange.FILE_NAME).header(Constants.MSG_ID)
