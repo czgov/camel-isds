@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
+import java.util.EnumSet;
 
+import cz.abclinuxu.datoveschranky.common.entities.MessageState;
 import cz.abclinuxu.datoveschranky.impl.Authentication;
 import cz.abclinuxu.datoveschranky.impl.BasicAuthentication;
 import cz.abclinuxu.datoveschranky.impl.DataBoxManager;
@@ -29,7 +32,6 @@ public class ISDSEndpoint extends DefaultEndpoint {
     private static final Logger log = LoggerFactory.getLogger(ISDSEndpoint.class);
 
     @UriPath(description = "This endpoint doesn't use path parameter.")
-    @Metadata(required = "false")
     private String uriPath;
 
     @UriParam(enums = "production,test", defaultValue = "production")
@@ -44,18 +46,26 @@ public class ISDSEndpoint extends DefaultEndpoint {
     @Metadata(required = "true")
     private String password;
 
-    @UriParam(defaultValue = "true", label = "consumer",
-            description = "Set ISDS message as downloaded after successful processing of exchange?")
-    @Metadata(required = "false")
+    @UriParam(defaultValue = "true", label = "consumer", description = "Set ISDS message as downloaded after successful processing of exchange?")
     private boolean markDownloaded = true;
 
-    @UriParam(defaultValue = Constants.DEFAULT_ATTACHMENT_STORE,
-            description = "folder for storing message attachments")
+    @UriParam(defaultValue = Constants.DEFAULT_ATTACHMENT_STORE, description = "folder for storing message attachments")
     private Path attachmentStore = Paths.get(Constants.DEFAULT_ATTACHMENT_STORE);
-    
-    @UriParam(defaultValue = "false", label = "consumer",
-            description = "Download message as binary (signed) zfo data instead of Message instance.")
+
+    @UriParam(defaultValue = "false", label = "consumer", description = "Download message as binary (signed) zfo data instead of Message instance.")
     private boolean zfo = false;
+
+    @UriParam(defaultValue = "!read", label = "consumer", description = "Download only messages which are specified in filter. Null or empty for all.")
+    private EnumSet<MessageState> filter = getCamelContext().getTypeConverter().convertTo(EnumSet.class, "!read");
+
+    @UriParam(defaultValue = "0L", label = "consumer,advanced")
+    private Date from = new Date(0L);
+
+    @UriParam(defaultValue = "Long.MAX_VALUE", label = "consumer,advanced")
+    private Date to = new Date(Long.MAX_VALUE);
+    
+    @UriParam(defaultValue = "false")
+    private boolean realtime = false;
 
     private Authentication dataBoxAuth;
     private DataBoxManager dataBoxManager;
@@ -134,7 +144,7 @@ public class ISDSEndpoint extends DefaultEndpoint {
         return dataBoxManager;
     }
 
-	public boolean isMarkDownloaded() {
+    public boolean isMarkDownloaded() {
         return markDownloaded;
     }
 
@@ -149,7 +159,7 @@ public class ISDSEndpoint extends DefaultEndpoint {
     public void setAttachmentStore(Path attachmentStore) {
         this.attachmentStore = attachmentStore;
     }
-    
+
     public boolean isZfo() {
         return zfo;
     }
@@ -157,4 +167,48 @@ public class ISDSEndpoint extends DefaultEndpoint {
     public void setZfo(boolean zfo) {
         this.zfo = zfo;
     }
+
+    public EnumSet<MessageState> getFilter() {
+        return filter;
+    }
+
+    public void setFilter(EnumSet<MessageState> filter) {
+        this.filter = filter;
+    }
+
+    public Date getFrom() {
+        return from;
+    }
+
+    /**
+     * Download only messages received after this date.
+     * If using the URI, the pattern expected is: {@code yyyy-MM-dd HH:mm:ss} or {@code yyyy-MM-dd'T'HH:mm:ss}.
+     */
+    public void setFrom(Date from) {
+        this.from = from;
+    }
+
+    public Date getTo() {
+        return to;
+    }
+
+    /**
+     * Download only messages received before this date.
+     * If using the URI, the pattern expected is: {@code yyyy-MM-dd HH:mm:ss} or {@code yyyy-MM-dd'T'HH:mm:ss}.
+     */
+    public void setTo(Date to) {
+        this.to = to;
+    }
+
+    public boolean isRealtime() {
+        return realtime;
+    }
+
+    /**
+     * Setting realtime to {@code true} will override options {@code from,to}.
+     * Assuming {@code consumer.delay=1m}, then {@code from=now - 1 minute} and {@code to=now}.
+     */
+    public void setRealtime(boolean realtime) {
+        this.realtime = realtime;
+    }    
 }

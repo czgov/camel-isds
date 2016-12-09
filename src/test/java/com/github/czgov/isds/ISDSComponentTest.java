@@ -26,13 +26,13 @@ import java.util.concurrent.TimeUnit;
 public class ISDSComponentTest extends ISDSTestBase {
 
     @EndpointInject(uri = "mock:producer-basic")
-    MockEndpoint mockEndpoint;
+    private MockEndpoint mockEndpoint;
 
     @EndpointInject(uri = "mock:zfo")
-    MockEndpoint zfoMock;
+    private MockEndpoint zfoMock;
 
     @Produce(uri = "direct:sender-fo")
-    ProducerTemplate senderFo;
+    private ProducerTemplate senderFo;
 
     @Before
     public void initTimeout() throws InterruptedException {
@@ -102,6 +102,7 @@ public class ISDSComponentTest extends ISDSTestBase {
             public void configure() throws Exception {
                 from("isds:?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}" +
                         "&consumer.delay=5s" +
+                        "&realtime=true" +
                         "&attachmentStore=target/atts-ovm")
                         .id("from-ovm")
                         .log("new message in OVM inbox - id ${body.envelope.messageID}")
@@ -109,6 +110,7 @@ public class ISDSComponentTest extends ISDSTestBase {
 
                 from("isds:?environment=test&zfo=true&username={{isds.fo2.login}}&password={{isds.fo2.password}}" +
                         "&consumer.delay=5s" +
+                        "&realtime=true" +
                         "&attachmentStore=target/atts-fo2")
                         .id("from-fo2")
                         .log("databox id {{isds.fo2.id}} got new message in zfo format")

@@ -3,24 +3,20 @@ package com.github.czgov.isds;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.ScheduledPollConsumer;
+import org.apache.camel.support.SynchronizationAdapter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.Temporal;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cz.abclinuxu.datoveschranky.common.entities.Message;
 import cz.abclinuxu.datoveschranky.common.entities.MessageEnvelope;
-import cz.abclinuxu.datoveschranky.common.entities.MessageState;
 import cz.abclinuxu.datoveschranky.common.impl.FileAttachmentStorer;
 import cz.abclinuxu.datoveschranky.common.interfaces.AttachmentStorer;
 import cz.abclinuxu.datoveschranky.impl.DataBoxManager;
@@ -53,51 +49,62 @@ public class ISDSConsumer extends ScheduledPollConsumer {
     protected int poll() throws Exception {
         Exchange exchange = endpoint.createExchange();
 
-        // compute from - to time window to fetch
-        Duration d = Duration.ofMillis(getDelay());
-        Instant now = Instant.now();
-        Temporal before = d.subtractFrom(now);
-
-        Date from = Date.from(Instant.from(before));
-        Date to = Date.from(now);
-
-        EnumSet<MessageState> messageFilter = null;
         // offset is indexed from 1 according ot isds javadoc
         int offset = 1;
         int limit = Integer.MAX_VALUE;
+        Date from;
+        Date to;
+        if (endpoint.isRealtime()) {
+            // poll interval = from last poll till now
+            to = new Date();
+            from = new Date(System.currentTimeMillis() - this.getDelay());
+        } else {
+            // from stone age till future
+            from = endpoint.getFrom();
+            to = endpoint.getTo();
+        }
 
+        log.debug("Polling filter '{}'", endpoint.getFilter());
+        log.debug("Polling interval from '{}' to '{}'", from, to);
         List<MessageEnvelope> envelopes = endpoint.getDataBoxManager()
                 .getDataBoxMessagesService()
-                .getListOfReceivedMessages(from, to, messageFilter, offset, limit);
-
-        log.info("Poll {} messsage envelopes.", envelopes.size());
+                .getListOfReceivedMessages(from, to, endpoint.getFilter(), offset, limit);
+        log.info("Poll success, found {} message envelopes.", envelopes.size());
 
         AttachmentStorer storer = new FileAttachmentStorer(endpoint.getAttachmentStore().toFile());
-        for (MessageEnvelope e : envelopes) {
-            log.info("Extracting headers of message {}.", e.getMessageID());
-            exchange.getIn().setHeaders(getMessageHeaders(e));
+        for (MessageEnvelope env : envelopes) {
+            log.info("Extracting headers of message {}.", env.getMessageID());
+            exchange.getIn().setHeaders(getMessageHeaders(env));
 
             if (endpoint.isZfo()) {
-                log.info("Downloading message {} in binary pkcs signed zfo stream.", e.getMessageID());
+                log.info("Downloading message {} in binary pkcs signed zfo stream.", env.getMessageID());
                 // download data to this output stream
                 OutputStream os = new ByteArrayOutputStream();
-                endpoint.getDataBoxManager().getDataBoxDownloadService().downloadSignedMessage(e, os);
+                endpoint.getDataBoxManager().getDataBoxDownloadService().downloadSignedMessage(env, os);
                 exchange.getIn().setBody(os);
             } else {
-                log.info("Downloading message {} in unmarshalled Message instance.", e.getMessageID());
+                log.info("Downloading message {} in unmarshalled Message instance.", env.getMessageID());
                 Message m = endpoint.getDataBoxManager()
                         .getDataBoxDownloadService()
-                        .downloadMessage(e, storer);
+                        .downloadMessage(env, storer);
                 exchange.getIn().setBody(m);
+            }
+
+            if (endpoint.isMarkDownloaded()) {
+                // mark as downloaded only when exchange is successfully routed
+                exchange.addOnCompletion(new SynchronizationAdapter() {
+                    @Override
+                    public void onComplete(Exchange exchange) {
+                        log.info("Setting message {} as downloaded", env);
+                        // message is marked as downloaded regardless of errors in camel route
+                        endpoint.getDataBoxManager().getDataBoxMessagesService().markMessageAsDownloaded(env);
+                    }
+                });
             }
 
             try {
                 // send message to next processor in the route
                 getProcessor().process(exchange);
-                if (endpoint.isMarkDownloaded()) {
-                    log.info("Setting message {} as downloaded", e);
-                    endpoint.getDataBoxManager().getDataBoxMessagesService().markMessageAsDownloaded(e);
-                }
             } finally {
                 // log exception if an exception occurred and was not handled
                 if (exchange.getException() != null) {

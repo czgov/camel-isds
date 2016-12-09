@@ -24,8 +24,12 @@ ISDSEndpoint Options
 
 
 
+
+
+
+
 // endpoint options: START
-The ISDS component supports 11 endpoint options which are listed below:
+The ISDS component supports 15 endpoint options which are listed below:
 
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
@@ -34,15 +38,23 @@ The ISDS component supports 11 endpoint options which are listed below:
 | attachmentStore | common | camel-isds-attachment-store | Path | folder for storing message attachments
 | environment | common | production | ISDSEnvironment | Determine if you want to use real ISDS system or just testing one. Default value is real (production) system.
 | password | common |  | String | *Required* Password for ISDS system
+| realtime | common | false | boolean | Setting realtime to true will override options code fromto. Assuming code consumer.delay=1m then code from=now - 1 minute and code to=now.
 | username | common |  | String | *Required* Username for ISDS system.
 | bridgeErrorHandler | consumer | false | boolean | Allows for bridging the consumer to the Camel routing Error Handler which mean any exceptions occurred while the consumer is trying to pickup incoming messages or the likes will now be processed as a message and handled by the routing Error Handler. By default the consumer will use the org.apache.camel.spi.ExceptionHandler to deal with exceptions that will be logged at WARN/ERROR level and ignored.
+| filter | consumer | !read | MessageState> | Download only messages which are specified in filter. Null or empty for all.
 | markDownloaded | consumer | true | boolean | Set ISDS message as downloaded after successful processing of exchange
 | zfo | consumer | false | boolean | Download message as binary (signed) zfo data instead of Message instance.
 | exceptionHandler | consumer (advanced) |  | ExceptionHandler | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN/ERROR level and ignored.
+| from | consumer (advanced) | 0L | Date | Download only messages received after this date. If using the URI the pattern expected is: code yyyy-MM-dd HH:mm:ss or code yyyy-MM-dd'T'HH:mm:ss.
+| to | consumer (advanced) | Long.MAX_VALUE | Date | Download only messages received before this date. If using the URI the pattern expected is: code yyyy-MM-dd HH:mm:ss or code yyyy-MM-dd'T'HH:mm:ss.
 | exchangePattern | advanced | InOnly | ExchangePattern | Sets the default exchange pattern when creating an exchange
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
 |=======================================================================
 // endpoint options: END
+
+
+
+
 
 
 
