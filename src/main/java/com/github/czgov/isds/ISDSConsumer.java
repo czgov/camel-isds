@@ -94,7 +94,10 @@ public class ISDSConsumer extends ScheduledPollConsumer {
             try {
                 // send message to next processor in the route
                 getProcessor().process(exchange);
-                return envelopes.size(); // number of messages polled
+                if (endpoint.isMarkDownloaded()) {
+                    log.info("Setting message {} as downloaded", e);
+                    endpoint.getDataBoxManager().getDataBoxMessagesService().markMessageAsDownloaded(e);
+                }
             } finally {
                 // log exception if an exception occurred and was not handled
                 if (exchange.getException() != null) {
@@ -102,6 +105,7 @@ public class ISDSConsumer extends ScheduledPollConsumer {
                 }
             }
         }
+        // number of messages polled
         return envelopes.size();
     }
 }
