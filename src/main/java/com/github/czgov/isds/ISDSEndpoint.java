@@ -44,6 +44,11 @@ public class ISDSEndpoint extends DefaultEndpoint {
     @Metadata(required = "true")
     private String password;
 
+    @UriParam(defaultValue = "true", label = "consumer",
+            description = "Set ISDS message as downloaded after successful processing of exchange?")
+    @Metadata(required = "false")
+    private boolean markDownloaded = true;
+
     @UriParam(defaultValue = Constants.DEFAULT_ATTACHMENT_STORE,
             description = "folder for storing message attachments")
     private Path attachmentStore = Paths.get(Constants.DEFAULT_ATTACHMENT_STORE);
@@ -127,6 +132,14 @@ public class ISDSEndpoint extends DefaultEndpoint {
 
     public DataBoxManager getDataBoxManager() {
         return dataBoxManager;
+    }
+
+	public boolean isMarkDownloaded() {
+        return markDownloaded;
+    }
+
+    public void setMarkDownloaded(boolean markDownloaded) {
+        this.markDownloaded = markDownloaded;
     }
 
     public Path getAttachmentStore() {
