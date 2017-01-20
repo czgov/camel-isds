@@ -82,6 +82,8 @@ public class ISDSConsumer extends ScheduledPollConsumer {
                 OutputStream os = new ByteArrayOutputStream();
                 endpoint.getDataBoxManager().getDataBoxDownloadService().downloadSignedMessage(env, os);
                 exchange.getIn().setBody(os);
+                // assume saving exchange to file and by default fill proper filename header
+                exchange.getIn().setHeader(Exchange.FILE_NAME, env.getMessageID() + ".zfo");
             } else {
                 log.info("Downloading message {} in unmarshalled Message instance.", env.getMessageID());
                 Message m = endpoint.getDataBoxManager()

@@ -86,7 +86,7 @@ public class ISDSComponentTest extends ISDSTestBase {
         mockEndpoint.message(0).body().isEqualTo(m.getEnvelope().getMessageID());
         mockEndpoint.assertIsSatisfied();
 
-        Path zfoPath = Paths.get("target", "camel-isds-zfo", m.getEnvelope().getMessageID());
+        Path zfoPath = Paths.get("target", "camel-isds-zfo", m.getEnvelope().getMessageID() + ".zfo");
         assertTrue("There must be file with zfo content at", Files.exists(zfoPath));
 
         MessageValidator validator = new MessageValidator();
@@ -114,7 +114,6 @@ public class ISDSComponentTest extends ISDSTestBase {
                         "&attachmentStore=target/atts-fo2")
                         .id("from-fo2")
                         .log("databox id {{isds.fo2.id}} got new message in zfo format")
-                        .setHeader(Exchange.FILE_NAME).header(Constants.MSG_ID)
                         .to("file:target/camel-isds-zfo")
                         .setBody().header(Constants.MSG_ID)
                         .to(mockEndpoint.getEndpointUri());
