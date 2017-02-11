@@ -97,7 +97,7 @@ public class ISDSEndpoint extends DefaultEndpoint {
 
     public Consumer createConsumer(Processor processor) throws Exception {
         initDataBox();
-        Consumer consumer = new ISDSConsumer(this, processor, dataBoxManager);
+        Consumer consumer = new ISDSConsumer(this, processor);
         configureConsumer(consumer);
         return consumer;
     }
