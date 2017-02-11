@@ -1,12 +1,13 @@
 package com.github.czgov.isds;
 
-import cz.abclinuxu.datoveschranky.common.entities.Attachment;
-import cz.abclinuxu.datoveschranky.common.entities.Message;
-import cz.abclinuxu.datoveschranky.common.impl.ByteArrayAttachmentStorer;
-import cz.abclinuxu.datoveschranky.impl.MessageValidator;
-import org.apache.camel.*;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.NoTypeConversionAvailableException;
+import org.apache.camel.Produce;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -16,8 +17,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
+import cz.abclinuxu.datoveschranky.common.ByteArrayAttachmentStorer;
+import cz.abclinuxu.datoveschranky.common.entities.Attachment;
+import cz.abclinuxu.datoveschranky.common.entities.Message;
+import cz.abclinuxu.datoveschranky.common.entities.content.ByteContent;
+import cz.abclinuxu.datoveschranky.impl.MessageValidator;
 
 /**
  * Created by jludvice on 9/30/16.
@@ -56,10 +66,22 @@ public class ISDSComponentTest extends ISDSTestBase {
     }
 
     @Test
-    public void recieveMessageInBody() throws InterruptedException {
+    public void recieveMessageInBody() throws InterruptedException, IOException, NoTypeConversionAvailableException, NoSuchAlgorithmException {
 
+        String fileName = "sample.pdf";
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        byte[] originalContent;
+        // read content and count hash during reading
+        try (DigestInputStream sampleStream = new DigestInputStream(this.getClass().getResourceAsStream("/" + fileName), md5)) {
+            originalContent = context().getTypeConverter().mandatoryConvertTo(byte[].class, sampleStream);
+        }
+        // md5 hash of original attachment
+        byte[] originalMD5 = md5.digest();
+
+        Attachment sourceAttachment = new Attachment(fileName, new ByteContent(originalContent));
+        sourceAttachment.setMetaType("main");
         // send message from FO to OVM
-        Message message = createMessage(getOvmId(), "FO->OVM at " + new Date());
+        Message message = createMessage(getOvmId(), "FO->OVM at " + new Date(), sourceAttachment);
         Message response = senderFo.requestBody(message, Message.class);
 
         // assert we received message with given id
@@ -74,6 +96,17 @@ public class ISDSComponentTest extends ISDSTestBase {
         String name = a.getDescription();
         Path filePath = Paths.get("target", "atts-ovm", String.format("%s_%s", received.getEnvelope().getMessageID(), name));
         assertTrue("Attachment file should exist: " + filePath, Files.exists(filePath));
+
+        md5.reset();
+
+        try (DigestInputStream digestInputStream = new DigestInputStream(Files.newInputStream(filePath), md5)) {
+            int i;
+            while ((i = digestInputStream.read()) != -1) {
+                // don't care about the data, just need to read it to get digest
+            }
+        }
+        byte[] receivedMD5 = md5.digest();
+        assertTrue("Hash of original and received message attachment must be the same", MessageDigest.isEqual(originalMD5, receivedMD5));
     }
 
     @Test

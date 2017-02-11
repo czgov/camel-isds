@@ -1,7 +1,7 @@
 package com.github.czgov.isds;
 
-import cz.abclinuxu.datoveschranky.common.impl.Config;
-import cz.abclinuxu.datoveschranky.common.impl.DataBoxEnvironment;
+import cz.abclinuxu.datoveschranky.common.Config;
+import cz.abclinuxu.datoveschranky.common.DataBoxEnvironment;
 
 /**
  * Created by jludvice on 7/29/16.

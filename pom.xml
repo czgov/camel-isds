@@ -24,7 +24,7 @@
     <sl4j.version>1.7.21</sl4j.version>
     <log4j.version>1.2.17</log4j.version>
 
-    <java.isds.version>1.0.0.Alpha</java.isds.version>
+    <java.isds.version>1.1.0</java.isds.version>
   </properties>
 
   <dependencies>
@@ -120,6 +120,7 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+          	<Import-Packate>org.bouncycastle.cms,*</Import-Packate>
             <Bundle-SymbolicName>${project.groupId}.${project.groupId}</Bundle-SymbolicName>
             <Export-Service>org.apache.camel.spi.ComponentResolver;component=isds</Export-Service>
           </instructions>
