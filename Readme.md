@@ -1,5 +1,7 @@
 Camel ISDS Component
 =======================
+[![Build Status](https://travis-ci.org/czgov/camel-isds.svg?branch=master)](https://travis-ci.org/czgov/camel-isds)
+
 
 ISDS is shortcut for system run by Czech government called _Informační systém datových schránek_.
 
