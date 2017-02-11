@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name='camel-isds-${project.version}'>
+
+	<repository>mvn:cz.abclinuxu.datoveschranky/karaf/${java.isds.version}/xml/features</repository>
+
+	<feature name='camel-isds' version='${project.version}' resolver='(obr)'>
+		<feature>camel</feature>
+		<feature version="${java.isds.version}">isds</feature>
+		<bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
+	</feature>
+
+</features>

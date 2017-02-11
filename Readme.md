@@ -17,6 +17,21 @@ from("isds:?environment=test&username=YOUR_LOGIN&password=YOUR_PASSWORD?zfo=true
 	.to("file:dir-with-zfo-files");
 ```
 
+## OSGi ready
+Component is ready for OSGi deployment.  
+Example of deployment into JBoss Fuse 6.3:
+```bash
+# download features.xml from maven central
+JBossFuse:karaf@root> features:addurl mvn:com.github.czgov.isds/camel-isds/0.1.0-SNAPSHOT/xml/features
+
+# download jars and install into Fuse
+JBossFuse:karaf@root> features:install camel-isds
+
+# verify features are installed
+JBossFuse:karaf@root> features:list | grep isds
+[installed  ] [1.1.0                ] isds                                          javaisds-1.1.0                         
+[installed  ] [0.1.0-SNAPSHOT       ] camel-isds                                    camel-isds-0.1.0-SNAPSHOT   
+```
 
 ## How to contribute
 
