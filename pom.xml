@@ -78,6 +78,14 @@
   <build>
     <defaultGoal>install</defaultGoal>
 
+    <resources>
+      <resource>
+        <!-- need to use maven property placeholders in features.xml -->
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
     <plugins>
 
       <plugin>
@@ -87,6 +95,30 @@
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- tell maven to deploy also features.xml -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/classes/features.xml</file>
+                  <type>xml</type>
+                  <classifier>features</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- generate components meta-data and validate component includes documentation etc -->
