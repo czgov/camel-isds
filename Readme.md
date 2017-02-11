@@ -14,7 +14,7 @@ Component is currently under development and any contribution is welcome and app
 
 Camel route in Java DSL for downloading of `*.zfo` messages to directory `dir-with-zfo-files`:
 ```java
-from("isds:?environment=test&username=YOUR_LOGIN&password=YOUR_PASSWORD?zfo=true")
+from("isds:fetch?environment=test&username=YOUR_LOGIN&password=YOUR_PASSWORD?zfo=true")
 	.log("New message ${body}")
 	.to("file:dir-with-zfo-files");
 ```

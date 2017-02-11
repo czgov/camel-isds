@@ -25,8 +25,8 @@ public class ISDSComponent extends UriEndpointComponent {
     }
 
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        if (remaining != null && !remaining.isEmpty()) {
-            log.warn("UriPath parameter '{}' will be ignored. ISDS Uses isds:?key=value for all options.", remaining);
+        if (remaining == null || !"fetch".equals(remaining)) {
+            log.warn("UriPath parameter '{}' is not supported. Use isds:fetch", remaining);
         }
         Endpoint endpoint = new ISDSEndpoint(uri, this);
         setProperties(endpoint, parameters);
