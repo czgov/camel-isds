@@ -1,0 +1,6 @@
+language: java
+jdk:
+- oraclejdk8
+before_install:
+- openssl aes-256-cbc -K $encrypted_b3bd8983ab86_key -iv $encrypted_b3bd8983ab86_iv
+  -in isds-config.properties.enc -out isds-config.properties -d
