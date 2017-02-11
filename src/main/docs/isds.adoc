@@ -93,6 +93,6 @@ with prefix `consumer.`
 
 For example to set polling period to 72 hours, you can use:
 ```java
-from("isds:?environment=test&username=USERNAME&password=PASSWORD&consumer.delay=72h")
+from("isds:fetch?environment=test&username=USERNAME&password=PASSWORD&consumer.delay=72h")
 		.log("new message ${body}");
 ```

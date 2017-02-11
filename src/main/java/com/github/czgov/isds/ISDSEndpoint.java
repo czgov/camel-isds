@@ -27,7 +27,7 @@ import cz.abclinuxu.datoveschranky.impl.DataBoxManager;
 /**
  * Represents a ISDS endpoint.
  */
-@UriEndpoint(scheme = "isds", title = "ISDS", syntax = "isds:?opt=value", consumerClass = ISDSConsumer.class, label = "ISDS")
+@UriEndpoint(scheme = "isds", title = "ISDS", syntax = "isds:fetch?opt=value", consumerClass = ISDSConsumer.class, label = "ISDS")
 public class ISDSEndpoint extends DefaultEndpoint {
     private static final Logger log = LoggerFactory.getLogger(ISDSEndpoint.class);
 
