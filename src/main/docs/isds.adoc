@@ -1,30 +1,36 @@
 [[ISDS]]
-Camel ISDS
-~~~~~~~~~~
+## Camel ISDS
 
+Maven users will need to add the following dependency to their pom.xml
+for this component:
+
+[source,xml]
+-------------------------------------------------------
+    <dependency>
+            <groupId>com.github.czgov.isds</groupId>
+            <artifactId>camel-isds</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+-------------------------------------------------------
+
+### URI format
+[source,java]
+----
+isds:messages?options
+----
+
+[[ISDS-Operations]]
+### Supported operations
+Camel ISDS currently supports only `messages` operation for sending and receiving messages.
+
+Operations planned for next releases are:
+
+* `search` for searching of databoxes based on given query
+* `download` for downloading of specific isds message by it's id
 
 
 [[ISDS-ISDSEndpointOptions]]
-ISDSEndpoint Options
-^^^^^^^^^^^^^^^^^^^
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### ISDSEndpoint Options
 
 
 
@@ -34,7 +40,7 @@ The ISDS component supports 15 endpoint options which are listed below:
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
 | Name | Group | Default | Java Type | Description
-| uriPath | common |  | String | This endpoint doesn't use path parameter.
+| operation | common |  | ISDSOperation | *Required* Which operation should be used with isds.
 | attachmentStore | common | camel-isds-attachment-store | Path | folder for storing message attachments
 | environment | common | production | ISDSEnvironment | Determine if you want to use real ISDS system or just testing one. Default value is real (production) system.
 | password | common |  | String | *Required* Password for ISDS system
@@ -72,9 +78,9 @@ The ISDS component supports 15 endpoint options which are listed below:
 
 
 
+
 [[ISDS-ISDSComponentOptions]]
-ISDSComponent Options
-^^^^^^^^^^^^^^^^^^^^
+### ISDSComponent Options
 
 
 // component options: START
@@ -83,8 +89,7 @@ The ISDS component has no options.
 
 
 [[ISDS-ConsumerEndpoints]]
-Consumer Endpoints
-^^^^^^^^^^^^^^^^^^
+### Consumer Endpoints
 
 `ISDSConsumer` extends `ScheduledPollConsumer`.
 This means that you can use
@@ -93,6 +98,6 @@ with prefix `consumer.`
 
 For example to set polling period to 72 hours, you can use:
 ```java
-from("isds:fetch?environment=test&username=USERNAME&password=PASSWORD&consumer.delay=72h")
+from("isds:messages?environment=test&username=USERNAME&password=PASSWORD&consumer.delay=72h")
 		.log("new message ${body}");
 ```

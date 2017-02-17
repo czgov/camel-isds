@@ -125,7 +125,7 @@ public class FilterTest extends ISDSTestBase {
 
             @Override
             public void configure() throws Exception {
-                from("isds:fetch?environment=test&username={{isds.ovm.login}}"
+                from("isds:messages?environment=test&username={{isds.ovm.login}}"
                         + "&password={{isds.ovm.password}}"
                         + "&consumer.delay=1s"
                         + "&filter=!read")

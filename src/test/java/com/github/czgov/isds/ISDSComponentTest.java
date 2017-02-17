@@ -56,7 +56,7 @@ public class ISDSComponentTest extends ISDSTestBase {
 
         Message message = createMessage(getFoId(), subject);
         Message response = template.requestBody(
-                "isds:fetch?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}", message,
+                "isds:messages?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}", message,
                 Message.class);
 
         String msgId = response.getEnvelope().getMessageID();
@@ -133,7 +133,7 @@ public class ISDSComponentTest extends ISDSTestBase {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from("isds:fetch?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}" +
+                from("isds:messages?environment=test&username={{isds.ovm.login}}&password={{isds.ovm.password}}" +
                         "&consumer.delay=5s" +
                         "&realtime=true" +
                         "&attachmentStore=target/atts-ovm")
@@ -141,7 +141,7 @@ public class ISDSComponentTest extends ISDSTestBase {
                         .log("new message in OVM inbox - id ${body.envelope.messageID}")
                         .to(mockEndpoint.getEndpointUri());
 
-                from("isds:fetch?environment=test&zfo=true&username={{isds.fo2.login}}&password={{isds.fo2.password}}" +
+                from("isds:messages?environment=test&zfo=true&username={{isds.fo2.login}}&password={{isds.fo2.password}}" +
                         "&consumer.delay=5s" +
                         "&realtime=true" +
                         "&attachmentStore=target/atts-fo2")
@@ -153,7 +153,7 @@ public class ISDSComponentTest extends ISDSTestBase {
 
                 from("direct:sender-fo").id("sender-fo").startupOrder(10)
                         .log("sending message as {{isds.fo.login}}")
-                        .to("isds:fetch?environment=test&username={{isds.fo.login}}&password={{isds.fo.password}}")
+                        .to("isds:messages?environment=test&username={{isds.fo.login}}&password={{isds.fo.password}}")
                         .log("Message was sent: ${body}");
             }
         };
