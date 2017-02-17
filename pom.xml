@@ -78,23 +78,29 @@
   <build>
     <defaultGoal>install</defaultGoal>
 
-    <resources>
-      <resource>
-        <!-- need to use maven property placeholders in features.xml -->
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>2.6</version>
-        <configuration>
-          <encoding>UTF-8</encoding>
-        </configuration>
+        <executions>
+          <execution>
+            <id>copy-features</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>target/features</outputDirectory>
+              <resources>
+                <resource>
+                  <!-- need to use maven property placeholders in features.xml -->
+                  <directory>src/main/features</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -111,7 +117,7 @@
             <configuration>
               <artifacts>
                 <artifact>
-                  <file>target/classes/features.xml</file>
+                  <file>target/features/features.xml</file>
                   <type>xml</type>
                   <classifier>features</classifier>
                 </artifact>
