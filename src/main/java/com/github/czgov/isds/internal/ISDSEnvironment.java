@@ -1,4 +1,4 @@
-package com.github.czgov.isds;
+package com.github.czgov.isds.internal;
 
 import cz.abclinuxu.datoveschranky.common.Config;
 import cz.abclinuxu.datoveschranky.common.DataBoxEnvironment;

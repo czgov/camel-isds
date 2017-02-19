@@ -1,5 +1,7 @@
 package com.github.czgov.isds;
 
+import static com.github.czgov.isds.internal.Utils.createInstance;
+
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
@@ -11,6 +13,9 @@ import org.apache.camel.spi.UriPath;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.czgov.isds.internal.ISDSEnvironment;
+import com.github.czgov.isds.internal.ISDSOperation;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,12 +32,13 @@ import cz.abclinuxu.datoveschranky.impl.DataBoxManager;
 /**
  * Represents a ISDS endpoint.
  */
-@UriEndpoint(scheme = "isds", title = "ISDS", syntax = "isds:fetch?opt=value", consumerClass = ISDSConsumer.class, label = "ISDS")
+@UriEndpoint(scheme = "isds", title = "ISDS", syntax = "isds:messages?opt=value", consumerClass = ISDSConsumer.class, label = "ISDS")
 public class ISDSEndpoint extends DefaultEndpoint {
     private static final Logger log = LoggerFactory.getLogger(ISDSEndpoint.class);
 
-    @UriPath(description = "This endpoint doesn't use path parameter.")
-    private String uriPath;
+    @UriPath
+    @Metadata(required = "true")
+    private ISDSOperation operation;
 
     @UriParam(enums = "production,test", defaultValue = "production")
     @Metadata(required = "false")
@@ -63,7 +69,7 @@ public class ISDSEndpoint extends DefaultEndpoint {
 
     @UriParam(defaultValue = "Long.MAX_VALUE", label = "consumer,advanced")
     private Date to = new Date(Long.MAX_VALUE);
-    
+
     @UriParam(defaultValue = "false")
     private boolean realtime = false;
 
@@ -90,20 +96,45 @@ public class ISDSEndpoint extends DefaultEndpoint {
         }
     }
 
+    /**
+     * Create producer for specified in endpoint {@link ISDSEndpoint#getOperation()}.
+     *
+     * @return producer instance
+     * @throws Exception
+     */
     public Producer createProducer() throws Exception {
         initDataBox();
-        return new ISDSProducer(this);
+        return createInstance(operation.getProducerClass(), this);
     }
 
+    /**
+     * Create consumer specified in endpoint {@link ISDSEndpoint#getOperation()}.
+     *
+     * @param processor processor
+     * @return consumer instance
+     * @throws Exception
+     */
     public Consumer createConsumer(Processor processor) throws Exception {
         initDataBox();
-        Consumer consumer = new ISDSConsumer(this, processor);
+        // each operation has it's own consumer class
+        Consumer consumer = createInstance(operation.getConsumerClass(), this, processor);
         configureConsumer(consumer);
         return consumer;
     }
 
     public boolean isSingleton() {
         return true;
+    }
+
+    public ISDSOperation getOperation() {
+        return operation;
+    }
+
+    /**
+     * Which operation should be used with isds.
+     */
+    public void setOperation(ISDSOperation operation) {
+        this.operation = operation;
     }
 
     public ISDSEnvironment getEnvironment() {
@@ -210,5 +241,5 @@ public class ISDSEndpoint extends DefaultEndpoint {
      */
     public void setRealtime(boolean realtime) {
         this.realtime = realtime;
-    }    
+    }
 }

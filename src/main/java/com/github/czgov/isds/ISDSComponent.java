@@ -7,6 +7,8 @@ import org.apache.camel.impl.UriEndpointComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.czgov.isds.internal.ISDSOperation;
+
 import java.util.Map;
 
 /**
@@ -25,10 +27,8 @@ public class ISDSComponent extends UriEndpointComponent {
     }
 
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        if (remaining == null || !"fetch".equals(remaining)) {
-            log.warn("UriPath parameter '{}' is not supported. Use isds:fetch", remaining);
-        }
-        Endpoint endpoint = new ISDSEndpoint(uri, this);
+        ISDSEndpoint endpoint = new ISDSEndpoint(uri, this);
+        endpoint.setOperation(ISDSOperation.fromValue(remaining));
         setProperties(endpoint, parameters);
         return endpoint;
     }
