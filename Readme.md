@@ -27,7 +27,7 @@ Component is ready for OSGi deployment.
 Example of deployment into JBoss Fuse 6.3:
 ```bash
 # download features.xml from maven central
-JBossFuse:karaf@root> features:addurl mvn:com.github.czgov.isds/camel-isds/0.1.0-SNAPSHOT/xml/features
+JBossFuse:karaf@root> features:addurl mvn:com.github.czgov/camel-isds/0.1.0-SNAPSHOT/xml/features
 
 # download jars and install into Fuse
 JBossFuse:karaf@root> features:install camel-isds
