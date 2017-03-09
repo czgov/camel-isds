@@ -1,5 +1,7 @@
 package com.github.czgov.isds;
 
+import static com.github.czgov.isds.Utils.assertMD5equals;
+
 import org.apache.camel.EndpointInject;
 import org.apache.camel.NoTypeConversionAvailableException;
 import org.apache.camel.Produce;
@@ -13,12 +15,13 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +37,9 @@ import cz.abclinuxu.datoveschranky.impl.MessageValidator;
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ISDSComponentTest extends ISDSTestBase {
+    private static final Logger log = LoggerFactory.getLogger(ISDSComponentTest.class);
+
+    public static final String SAMPLE_PDF_PATH = "/sample.pdf";
 
     @EndpointInject(uri = "mock:producer-basic")
     private MockEndpoint mockEndpoint;
@@ -68,17 +74,9 @@ public class ISDSComponentTest extends ISDSTestBase {
     @Test
     public void recieveMessageInBody() throws InterruptedException, IOException, NoTypeConversionAvailableException, NoSuchAlgorithmException {
 
-        String fileName = "sample.pdf";
-        MessageDigest md5 = MessageDigest.getInstance("MD5");
-        byte[] originalContent;
-        // read content and count hash during reading
-        try (DigestInputStream sampleStream = new DigestInputStream(this.getClass().getResourceAsStream("/" + fileName), md5)) {
-            originalContent = context().getTypeConverter().mandatoryConvertTo(byte[].class, sampleStream);
-        }
-        // md5 hash of original attachment
-        byte[] originalMD5 = md5.digest();
+        byte[] originalContent = context().getTypeConverter().mandatoryConvertTo(byte[].class, this.getClass().getResourceAsStream(SAMPLE_PDF_PATH));
 
-        Attachment sourceAttachment = new Attachment(fileName, new ByteContent(originalContent));
+        Attachment sourceAttachment = new Attachment(SAMPLE_PDF_PATH.replace("/", ""), new ByteContent(originalContent));
         sourceAttachment.setMetaType("main");
         // send message from FO to OVM
         Message message = createMessage(getOvmId(), "FO->OVM at " + new Date(), sourceAttachment);
@@ -97,16 +95,9 @@ public class ISDSComponentTest extends ISDSTestBase {
         Path filePath = Paths.get("target", "atts-ovm", String.format("%s_%s", received.getEnvelope().getMessageID(), name));
         assertTrue("Attachment file should exist: " + filePath, Files.exists(filePath));
 
-        md5.reset();
-
-        try (DigestInputStream digestInputStream = new DigestInputStream(Files.newInputStream(filePath), md5)) {
-            int i;
-            while ((i = digestInputStream.read()) != -1) {
-                // don't care about the data, just need to read it to get digest
-            }
-        }
-        byte[] receivedMD5 = md5.digest();
-        assertTrue("Hash of original and received message attachment must be the same", MessageDigest.isEqual(originalMD5, receivedMD5));
+        assertMD5equals("Hash of original and received message attachment must be the same",
+                this.getClass().getResourceAsStream(SAMPLE_PDF_PATH),
+                Files.newInputStream(filePath));
     }
 
     @Test
