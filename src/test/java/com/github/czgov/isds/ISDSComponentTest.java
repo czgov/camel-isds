@@ -3,6 +3,7 @@ package com.github.czgov.isds;
 import static com.github.czgov.isds.Utils.assertMD5equals;
 
 import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
 import org.apache.camel.NoTypeConversionAvailableException;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
@@ -18,7 +19,10 @@ import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.activation.DataHandler;
+
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,6 +73,31 @@ public class ISDSComponentTest extends ISDSTestBase {
         assertNotNull("Sent message must have ID defined", msgId);
         assertTrue("Sent message must have numeric id. Found: " + msgId, Long.parseLong(msgId) > 0);
         System.out.println("result: " + response);
+    }
+
+    @Test
+    public void sendMessagFromAttachments() throws InterruptedException, IOException, NoSuchAlgorithmException {
+        final String subject = "Message from attachments " + new Date();
+        mockEndpoint.expectedMessageCount(1);
+        Exchange sentResult = template.request("direct:sender-fo",
+                exchange -> {
+                    exchange.getIn().setHeader(Constants.MSG_SUBJECT, subject);
+                    exchange.getIn().setHeader(Constants.MSG_TO, getOvmId());
+
+                    URL u = ISDSComponentTest.class.getResource(SAMPLE_PDF_PATH);
+                    exchange.getIn().addAttachment("sample.pdf", new DataHandler(u));
+                });
+
+        Message m = sentResult.getIn().getBody(Message.class);
+        assertNotNull("Sent message can't be null", m);
+        assertNotNull("Message must have id assigned", m.getEnvelope().getMessageID());
+
+        assertEquals("Message must have same subject", subject, m.getEnvelope().getAnnotation());
+
+        mockEndpoint.assertIsSatisfied(TimeUnit.MINUTES.toMillis(2));
+
+        Message received = mockEndpoint.getReceivedExchanges().get(0).getIn().getBody(Message.class);
+        assertMD5equals("Original and received pdf must have equal md5 hash", ISDSComponentTest.class.getResourceAsStream(SAMPLE_PDF_PATH), received.getAttachments().get(0).getContent().getInputStream());
     }
 
     @Test
