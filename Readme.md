@@ -1,6 +1,8 @@
 Camel ISDS Component
 =======================
 [![Build Status](https://travis-ci.org/czgov/camel-isds.svg?branch=master)](https://travis-ci.org/czgov/camel-isds)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.czgov/camel-isds/badge.svg)](https://maven-badges.herokuapp.com/maven-central/cz.abclinuxu.datoveschranky/isds)
+[![Javadocs](http://javadoc.io/badge/com.github.czgov/camel-isds.svg)](http://javadoc.io/doc/com.github.czgov/camel-isds)
 
 
 ISDS is shortcut for system run by Czech government called _Informační systém datových schránek_.
@@ -27,7 +29,7 @@ Component is ready for OSGi deployment.
 Example of deployment into JBoss Fuse 6.3:
 ```bash
 # download features.xml from maven central
-JBossFuse:karaf@root> features:addurl mvn:com.github.czgov/camel-isds/0.1.0-SNAPSHOT/xml/features
+JBossFuse:karaf@root> features:addurl mvn:com.github.czgov/camel-isds/0.1.0/xml/features
 
 # download jars and install into Fuse
 JBossFuse:karaf@root> features:install camel-isds
@@ -35,7 +37,7 @@ JBossFuse:karaf@root> features:install camel-isds
 # verify features are installed
 JBossFuse:karaf@root> features:list | grep isds
 [installed  ] [1.1.0                ] isds                                          javaisds-1.1.0                         
-[installed  ] [0.1.0-SNAPSHOT       ] camel-isds                                    camel-isds-0.1.0-SNAPSHOT   
+[installed  ] [0.1.0-SNAPSHOT       ] camel-isds                                    camel-isds-0.1.0   
 ```
 
 ## How to contribute
