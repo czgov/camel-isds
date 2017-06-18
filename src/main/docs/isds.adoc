@@ -7,11 +7,45 @@ for this component:
 [source,xml]
 -------------------------------------------------------
     <dependency>
-            <groupId>com.github.czgov.isds</groupId>
+            <groupId>com.github.czgov</groupId>
             <artifactId>camel-isds</artifactId>
-            <version>0.1.0-SNAPSHOT</version>
+            <version>${use.latest.from.maven.central}</version>
     </dependency>
 -------------------------------------------------------
+
+The recomended approach is to use some BOM (Bill of Materials)
+to avoid version conflicts.
+There is https://issues.apache.org/jira/browse/CAMEL-8502[issue]
+for real BOM in Camel project but `camel-parent` can be used until then.
+
+[source,xml]
+-------------------------------------------------------
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-parent</artifactId>
+        <version>${camel.version</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.czgov</groupId>
+      <artifactId>camel-isds</artifactId>
+      <version>${use.latest.from.maven.central}</version>
+    </dependency>
+  </dependencies>
+-------------------------------------------------------
+
 
 ### URI format
 [source,java]
