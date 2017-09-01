@@ -1,7 +1,7 @@
 Camel ISDS Component
 =======================
 [![Build Status](https://travis-ci.org/czgov/camel-isds.svg?branch=master)](https://travis-ci.org/czgov/camel-isds)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.czgov/camel-isds/badge.svg)](https://maven-badges.herokuapp.com/maven-central/cz.abclinuxu.datoveschranky/isds)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.czgov/camel-isds/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.czgov/camel-isds)
 [![Javadocs](http://javadoc.io/badge/com.github.czgov/camel-isds.svg)](http://javadoc.io/doc/com.github.czgov/camel-isds)
 
 
@@ -21,7 +21,7 @@ from("isds:messages?environment=test&username=YOUR_LOGIN&password=YOUR_PASSWORD?
 	.to("file:dir-with-zfo-files");
 ```
 
-See component documentation [here](src/main/docs/isds.adoc).
+**See component documentation [here](src/main/docs/isds.adoc).**
 
 
 ## OSGi ready

@@ -1,4 +1,11 @@
 # Created by .ignore support plugin (hsz.mobi)
+
+#ignore downloaded attachments from ISDS
+camel-isds-attachment-store
+
+# ignore property file with isds credentials (used for integration tests)
+isds-config.properties
+
 ### Java template
 *.class
 

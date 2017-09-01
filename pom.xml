@@ -7,7 +7,7 @@
   <groupId>com.github.czgov</groupId>
   <artifactId>camel-isds</artifactId>
   <packaging>bundle</packaging>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
 
   <name>Camel :: ISDS</name>
   <description>Camel ISDS Component</description>
@@ -30,7 +30,7 @@
     <sl4j.version>1.7.21</sl4j.version>
     <log4j.version>1.2.17</log4j.version>
 
-    <java.isds.version>1.1.0</java.isds.version>
+    <java.isds.version>1.1.1</java.isds.version>
   </properties>
 
   <scm>
