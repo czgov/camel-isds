@@ -73,6 +73,9 @@ public class ISDSEndpoint extends DefaultEndpoint {
     @UriParam(defaultValue = "false")
     private boolean realtime = false;
 
+    @UriParam(defaultValue = "false", label = "producer")
+    private boolean downloadListMessages = false;
+
     private Authentication dataBoxAuth;
     private DataBoxManager dataBoxManager;
 
@@ -241,5 +244,21 @@ public class ISDSEndpoint extends DefaultEndpoint {
      */
     public void setRealtime(boolean realtime) {
         this.realtime = realtime;
+    }
+
+    public boolean isDownloadListMessages() {
+        return downloadListMessages;
+    }
+
+    /**
+     * First call getListOfReceivedMessages before downloading message by it's ID.
+     * See documentation of ISDS, section 1.6.2.2 Novy Stav.
+     * User must login into ISDS in order to download messages.
+     * The only API method that causes "user logged in event" is getListOfReceivedMessages.
+     * ISDS may throw error number 1222 when downloading message if this option is set to false;
+     * @param downloadListMessages
+     */
+    public void setDownloadListMessages(boolean downloadListMessages) {
+        this.downloadListMessages = downloadListMessages;
     }
 }

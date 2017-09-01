@@ -25,7 +25,7 @@ for real BOM in Camel project but `camel-parent` can be used until then.
       <dependency>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-parent</artifactId>
-        <version>${camel.version</version>
+        <version>${camel.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -55,12 +55,35 @@ isds:messages?options
 
 [[ISDS-Operations]]
 ### Supported operations
-Camel ISDS currently supports only `messages` operation for sending and receiving messages.
+
+#### isds:messages
+For sending and receiving messages.
+
+#### isds:download
+For downloading of specific isds message by it's id.
+
+Important exchange headers
+[width="100%", options="header"]
+|=======================================================================
+| Header | Default value | Description
+| isdsId | null			 | download message with this ID
+| isdsType | received	 | download message you received. You may also download message you "sent"
+|=======================================================================
+
+
+When downloading message by it's id with `isds:download`,
+you might see this error:
+-------------------------------------------------------
+Nemohu stahnout prijatou zpravu. 1222:Zprava dosud nebyla oznacena jako dorucena, proto ji nelze cist.
+-------------------------------------------------------
+This is caused by security feature of ISDS.
+According to this feature it's forbidden to download message which wasn't marked as delivered.
+You may use option `isds:download?downloadListMessages=true` get around that.
+Component will first call getListOfReceivedMessages API method to trigger "delivered event" and then it should work.
 
 Operations planned for next releases are:
 
 * `search` for searching of databoxes based on given query
-* `download` for downloading of specific isds message by it's id
 
 
 [[ISDS-ISDSEndpointOptions]]
@@ -68,8 +91,9 @@ Operations planned for next releases are:
 
 
 
+
 // endpoint options: START
-The ISDS component supports 15 endpoint options which are listed below:
+The ISDS component supports 16 endpoint options which are listed below:
 
 [width="100%",cols="2s,1,1m,1m,5",options="header"]
 |=======================================================================
@@ -87,10 +111,12 @@ The ISDS component supports 15 endpoint options which are listed below:
 | exceptionHandler | consumer (advanced) |  | ExceptionHandler | To let the consumer use a custom ExceptionHandler. Notice if the option bridgeErrorHandler is enabled then this options is not in use. By default the consumer will deal with exceptions that will be logged at WARN/ERROR level and ignored.
 | from | consumer (advanced) | 0L | Date | Download only messages received after this date. If using the URI the pattern expected is: code yyyy-MM-dd HH:mm:ss or code yyyy-MM-dd'T'HH:mm:ss.
 | to | consumer (advanced) | Long.MAX_VALUE | Date | Download only messages received before this date. If using the URI the pattern expected is: code yyyy-MM-dd HH:mm:ss or code yyyy-MM-dd'T'HH:mm:ss.
+| downloadListMessages | producer | false | boolean | First call getListOfReceivedMessages before downloading message by it's ID. See documentation of ISDS section 1.6.2.2 Novy Stav. User must login into ISDS in order to download messages. The only API method that causes user logged in event is getListOfReceivedMessages. ISDS may throw error number 1222 when downloading message if this option is set to false;
 | exchangePattern | advanced | InOnly | ExchangePattern | Sets the default exchange pattern when creating an exchange
 | synchronous | advanced | false | boolean | Sets whether synchronous processing should be strictly used or Camel is allowed to use asynchronous processing (if supported).
 |=======================================================================
 // endpoint options: END
+
 
 
 

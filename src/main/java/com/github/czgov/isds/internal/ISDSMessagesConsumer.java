@@ -16,6 +16,7 @@ import cz.abclinuxu.datoveschranky.common.entities.Attachment;
 import cz.abclinuxu.datoveschranky.common.entities.Message;
 import cz.abclinuxu.datoveschranky.common.entities.MessageEnvelope;
 import cz.abclinuxu.datoveschranky.common.entities.content.FileContent;
+import cz.abclinuxu.datoveschranky.common.interfaces.AttachmentStorer;
 
 /**
  * Created by jludvice on 17.2.17.
@@ -56,25 +57,9 @@ public class ISDSMessagesConsumer extends ISDSConsumer {
             exchange.getIn().setHeaders(getMessageHeaders(env));
 
             if (endpoint.isZfo()) {
-                log.info("Downloading message {} in binary pkcs signed zfo stream.", env.getMessageID());
-                // download data to this output stream
-                OutputStream os = new ByteArrayOutputStream();
-                endpoint.getDataBoxManager().getDataBoxDownloadService().downloadSignedMessage(env, os);
-                exchange.getIn().setBody(os);
-                // assume saving exchange to file and by default fill proper filename header
-                exchange.getIn().setHeader(Exchange.FILE_NAME, env.getMessageID() + ".zfo");
+                downloadZFO(exchange, env, endpoint);
             } else {
-                log.info("Downloading message {} in unmarshalled Message instance.", env.getMessageID());
-                Message m = endpoint.getDataBoxManager()
-                        .getDataBoxDownloadService()
-                        .downloadMessage(env, storer);
-                exchange.getIn().setBody(m);
-                // map attachments to camel
-                for (Attachment a : m.getAttachments()) {
-                    // get attachment file and create data handler from it
-                    FileContent fc = (FileContent) a.getContent();
-                    exchange.getIn().addAttachment(a.getDescription(), createDataHandler(fc.getFile()));
-                }
+                downloadMessage(exchange, env, endpoint, storer);
             }
 
             if (endpoint.isMarkDownloaded()) {
@@ -102,5 +87,37 @@ public class ISDSMessagesConsumer extends ISDSConsumer {
         }
         // number of messages polled
         return envelopes.size();
+    }
+
+    static void downloadMessage(Exchange exchange, MessageEnvelope env, ISDSEndpoint endpoint, AttachmentStorer storer) {
+        log.info("Downloading message {} in unmarshalled Message instance.", env.getMessageID());
+        Message m = endpoint.getDataBoxManager()
+                .getDataBoxDownloadService()
+                .downloadMessage(env, storer);
+
+        exchange.getIn().setBody(m);
+        // map attachments to camel
+        for (Attachment a : m.getAttachments()) {
+            // get attachment file and create data handler from it
+            FileContent fc = (FileContent) a.getContent();
+            exchange.getIn().addAttachment(a.getDescription(), createDataHandler(fc.getFile()));
+        }
+    }
+
+    /**
+     * Download message in zfo format and store it as OutputStream in Exchange body and set Camel file name header.
+     *
+     * @param exchange store message to exchange body
+     * @param env envelope of requested message
+     * @param endpoint endpoint providing databox manager instance
+     */
+    static void downloadZFO(Exchange exchange, MessageEnvelope env, ISDSEndpoint endpoint) {
+        log.info("Downloading message {} in binary pkcs signed zfo stream.", env.getMessageID());
+        // download data to this output stream
+        OutputStream os = new ByteArrayOutputStream();
+        endpoint.getDataBoxManager().getDataBoxDownloadService().downloadSignedMessage(env, os);
+        exchange.getIn().setBody(os);
+        // assume saving exchange to file and by default fill proper filename header
+        exchange.getIn().setHeader(Exchange.FILE_NAME, env.getMessageID() + ".zfo");
     }
 }

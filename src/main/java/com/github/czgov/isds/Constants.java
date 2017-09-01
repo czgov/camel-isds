@@ -10,6 +10,7 @@ public class Constants {
     public static final String MSG_ID = PREFIX + "Id";
     public static final String MSG_FROM = PREFIX + "From";
     public static final String MSG_TO = PREFIX + "To";
+    public static final String MSG_TYPE = PREFIX + "Type";
 
     public static final String DEFAULT_ATTACHMENT_STORE = "camel-isds-attachment-store";
 }

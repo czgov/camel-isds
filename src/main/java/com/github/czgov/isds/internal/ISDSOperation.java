@@ -9,7 +9,8 @@ import com.github.czgov.isds.ISDSProducer;
  * Supported ISDS operations.
  */
 public enum ISDSOperation implements ApiName {
-    MESSAGES("messages", ISDSMessagesConsumer.class, ISDSMessagesProducer.class);
+    MESSAGES("messages", ISDSMessagesConsumer.class, ISDSMessagesProducer.class),
+    DOWNLOAD("download", null, ISDSDownloadProducer.class);
 
     private final String name;
     private final Class<? extends ISDSConsumer> consumerClass;
