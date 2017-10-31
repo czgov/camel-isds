@@ -30,7 +30,7 @@
     <sl4j.version>1.7.21</sl4j.version>
     <log4j.version>1.2.17</log4j.version>
 
-    <java.isds.version>1.1.1</java.isds.version>
+    <java.isds.version>1.1.2</java.isds.version>
   </properties>
 
   <scm>
