@@ -7,7 +7,7 @@
   <groupId>com.github.czgov</groupId>
   <artifactId>camel-isds</artifactId>
   <packaging>bundle</packaging>
-  <version>0.3.0</version>
+  <version>0.4.0-SNAPSHOT</version>
 
   <name>Camel :: ISDS</name>
   <description>Camel ISDS Component</description>
