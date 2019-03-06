@@ -4,6 +4,7 @@ Camel ISDS Component
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.czgov/camel-isds/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.czgov/camel-isds)
 [![Javadocs](http://javadoc.io/badge/com.github.czgov/camel-isds.svg)](http://javadoc.io/doc/com.github.czgov/camel-isds)
 
+**Project is no longer being actively maintained.**
 
 ISDS is shortcut for system run by Czech government called _Informační systém datových schránek_.
 
